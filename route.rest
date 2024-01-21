@@ -31,11 +31,11 @@ Content-Type: application/json
 
 ###
 # PATCH one User
-PATCH http://localhost:3000/api/users/65ac91fe95d708b8039f4085
+PATCH http://localhost:3000/api/users/65aca65f49fd19b0e0e89be3
 Content-Type: application/json
 
 {
-  "name": "Bob"
+  "name": "Bobby"
 }
 # {
 #   "email": "test@test.com"
@@ -43,7 +43,7 @@ Content-Type: application/json
 
 ###
 # DELETE one User
-DELETE http://localhost:3000/api/users/65ac6cd64c609d4be085d115
+DELETE http://localhost:3000/api/users/65aca65f49fd19b0e0e89be3
 
 
 # POSTS ##################################################################################
@@ -69,7 +69,7 @@ Content-Type: application/json
 
 ###
 # PATCH one Post
-PATCH http://localhost:3000/api/posts/65ac92bbe27fe8446f362fea
+PATCH http://localhost:3000/api/posts/65aca82c6528e7f3f5b4e837
 Content-Type: application/json
 
 {
@@ -81,7 +81,7 @@ Content-Type: application/json
 
 ###
 # DELETE one Post
-DELETE http://localhost:3000/api/posts/65ac8f967ac8497fcb5c54d0
+DELETE http://localhost:3000/api/posts/65aca82c6528e7f3f5b4e837
 
 
 # COMMENTS ##################################################################################
@@ -107,7 +107,7 @@ Content-Type: application/json
 
 ###
 # PATCH one Comment
-PATCH http://localhost:3000/api/comments/65ac931cc8a0d8b10e261f83
+PATCH http://localhost:3000/api/comments/65aca85e6528e7f3f5b4e846
 Content-Type: application/json
 
 {
@@ -116,4 +116,4 @@ Content-Type: application/json
 
 ###
 # DELETE one Comment
-DELETE http://localhost:3000/api/comments/65ac6cd64c609d4be085d12c
+DELETE http://localhost:3000/api/comments/65aca85e6528e7f3f5b4e846

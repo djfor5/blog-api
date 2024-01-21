@@ -1,5 +1,6 @@
 import Comment from "../models/comment.js";
 import { body, validationResult } from "express-validator"
+import mongoose from "mongoose";
 
 import asyncHandler from "express-async-handler"
 
@@ -14,6 +15,10 @@ const comment_list = asyncHandler(async (req, res, next) => {
 
 // Get details for one Comment.
 const comment_detail = asyncHandler(async (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid ID' });
+  }
+
   // Get details of comment
   const comment = await Comment.findById(req.params.id).exec();
 
@@ -47,8 +52,8 @@ const comment_create_post = [
 
     // Create a Comment object with escaped and trimmed data.
     const comment = new Comment({
-      postId: req.body.postId,
-      userId: req.body.userId,
+      postId: req.body.postId, // this will fail when document is saved if ID is invalid
+      userId: req.body.userId, // this will fail when document is saved if ID is invalid
       text: req.body.text,
     });
 
@@ -61,12 +66,7 @@ const comment_create_post = [
     } else {
       // Data from API call is valid. Save comment.
       await comment.save();
-      // res.json(comment);
-      res.json({
-        comment,
-        // TODO - Only return 'true' if comment actually created
-        created: true,
-      });
+      res.json(comment);
     }
   }),
 ];
@@ -78,12 +78,27 @@ const comment_update_patch = [
     .trim()
     .optional()
     .escape(),
+  
+  // Check for an invalid ID
+  (req, res, next) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid ID' });
+    }
+    next(); // Proceed to the next middleware if the ID is valid
+  },
+
   // Process request after validation and sanitization.
   asyncHandler(async (req, res, next) => {
     // Extract the validation errors from a request.
     const errors = validationResult(req);
 
-    const originalComment = Comment.findById(req.params.id)
+    const originalComment = await Comment.findById(req.params.id, {postId: 1, userId: 1})
+    
+    // Check if the document exists
+    if (!originalComment) {
+      return res.status(404).json({ error: 'Comment not found' });
+    }
+
     // Create a Comment object with escaped/trimmed data where provided, otherwise use original properties.
     const comment = new Comment({
       text: req.body.text || originalComment.text,
@@ -119,9 +134,18 @@ const comment_update_patch = [
 
 // Handle Comment delete on DELETE.
 const comment_delete_delete = asyncHandler(async (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid ID' });
+  }
+
   // Delete comment and return deleted comment.
-  // TODO - Do I need to escape ID parameter before using as argument in findByIdAndDelete?
   const deletedComment = await Comment.findByIdAndDelete(req.params.id);
+
+  // Check if the document exists
+  if (!deletedComment) {
+    return res.status(404).json({ error: 'Comment not found' });
+  }
+
   res.json({
     comment: deletedComment,
     deleted: deletedComment === null ? false : true

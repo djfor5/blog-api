@@ -2,6 +2,7 @@ import User from "../models/user.js";
 import Post from "../models/post.js";
 import Comment from "../models/comment.js";
 import { body, validationResult } from "express-validator"
+import mongoose from "mongoose";
 
 import asyncHandler from "express-async-handler"
 
@@ -16,6 +17,10 @@ const user_list = asyncHandler(async (req, res, next) => {
 
 // Display details for one user.
 const user_detail = asyncHandler(async (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid ID' });
+  }
+  
   // Get details of user and associated posts / comments
   const [user, posts, comments] = await Promise.all([
     User.findById(req.params.id).exec(),
@@ -67,12 +72,7 @@ const user_create_post = [
     } else {
       // Data from API call is valid. Save user.
       await user.save();
-      // res.json(user);
-      res.json({
-        user,
-        // TODO - Only return 'true' if user actually created
-        created: true,
-      });
+      res.json(user);
     }
   }),
 ];
@@ -88,12 +88,27 @@ const user_update_patch = [
     .trim()
     .optional()
     .escape(),
+
+  // Check for an invalid ID
+  (req, res, next) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid ID' });
+    }
+    next(); // Proceed to the next middleware if the ID is valid
+  },
+
   // Process request after validation and sanitization.
   asyncHandler(async (req, res, next) => {
     // Extract the validation errors from a request.
     const errors = validationResult(req);
 
-    const originalUser = User.findById(req.params.id)
+    const originalUser = await User.findById(req.params.id)
+
+    // Check if the document exists
+    if (!originalUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     // Create a User object with escaped/trimmed data where provided, otherwise use original properties.
     const user = new User({
       name: req.body.name || originalUser.name,
@@ -127,12 +142,21 @@ const user_update_patch = [
 
 // Handle User delete on DELETE.
 const user_delete_delete = asyncHandler(async (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid ID' });
+  }
+
   // Get details of user and all their posts and comments (in parallel)
   const [user, allPostsByUser, allCommentsByUser] = await Promise.all([
     User.findById(req.params.id).exec(),
     Post.find({ userId: req.params.id }).exec(),
     Comment.find({ userId: req.params.id }).exec(),
   ]);
+
+  // Check if the document exists
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
 
   if (allPostsByUser.length > 0 && allCommentsByUser.length > 0) {
     // User has posts and comments.
@@ -164,8 +188,8 @@ const user_delete_delete = asyncHandler(async (req, res, next) => {
     return;
   } else {
     // User has no posts and no comments. Delete object and return deleted user.
-    // TODO - Do I need to escape ID parameter before using as argument in findByIdAndDelete?
     const deletedUser = await User.findByIdAndDelete(req.params.id);
+    
     res.json({
       user: deletedUser,
       deleted: deletedUser === null ? false : true,

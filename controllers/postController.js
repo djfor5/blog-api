@@ -1,6 +1,7 @@
 import Post from "../models/post.js";
 import Comment from "../models/comment.js";
 import { body, validationResult } from "express-validator"
+import mongoose from "mongoose";
 
 import asyncHandler from "express-async-handler"
 
@@ -15,6 +16,10 @@ const post_list = asyncHandler(async (req, res, next) => {
 
 // Get details for one Post.
 const post_detail = asyncHandler(async (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid ID' });
+  }
+
   // Get details of post and associated comments
   const [post, comments] = await Promise.all([
     Post.findById(req.params.id).exec(),
@@ -54,7 +59,7 @@ const post_create_post = [
 
     // Create a Post object with escaped and trimmed data.
     const post = new Post({
-      userId: req.body.userId,
+      userId: req.body.userId, // this will fail when document is saved if ID is invalid
       title: req.body.title,
       text: req.body.text,
     });
@@ -68,12 +73,7 @@ const post_create_post = [
     } else {
       // Data from API call is valid. Save post.
       await post.save();
-      // res.json(post);
-      res.json({
-        post,
-        // TODO - Only return 'true' if post actually created
-        created: true,
-      });
+      res.json(post);
     }
   }),
 ];
@@ -89,12 +89,27 @@ const post_update_patch = [
     .trim()
     .optional()
     .escape(),
+
+  // Check for an invalid ID
+  (req, res, next) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ error: 'Invalid ID' });
+    }
+    next(); // Proceed to the next middleware if the ID is valid
+  },
+
   // Process request after validation and sanitization.
   asyncHandler(async (req, res, next) => {
     // Extract the validation errors from a request.
     const errors = validationResult(req);
 
-    const originalPost = Post.findById(req.params.id)
+    const originalPost = await Post.findById(req.params.id)
+
+    // Check if the document exists
+    if (!originalPost) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
     // Create a Post object with escaped/trimmed data where provided, otherwise use original properties.
     const post = new Post({
       title: req.body.title || originalPost.title,
@@ -130,11 +145,20 @@ const post_update_patch = [
 
 // Handle Post delete on DELETE.
 const post_delete_delete = asyncHandler(async (req, res, next) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid ID' });
+  }
+
   // Get details of post and all their comments (in parallel)
   const [post, allCommentsInPost] = await Promise.all([
     Post.findById(req.params.id).exec(),
     Comment.find({ postId: req.params.id }).exec(),
   ]);
+
+  // Check if the document exists
+  if (!post) {
+    return res.status(404).json({ error: 'Post not found' });
+  }
 
   if (allCommentsInPost.length > 0) {
     // Post has comments.
@@ -147,7 +171,6 @@ const post_delete_delete = asyncHandler(async (req, res, next) => {
     return;
   } else {
     // Post has no comments. Delete object and return deleted post.
-    // TODO - Do I need to escape ID parameter before using as argument in findByIdAndDelete?
     const deletedPost = await Post.findByIdAndDelete(req.params.id);
     res.json({
       post: deletedPost,
