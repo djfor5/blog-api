@@ -25,7 +25,7 @@ POST http://localhost:3000/api/users
 Content-Type: application/json
 
 {
-  "name": "Sally",
+  "name": "Fred",
   "email": "test@test.com"
 }
 
@@ -62,7 +62,7 @@ POST http://localhost:3000/api/posts
 Content-Type: application/json
 
 {
-  "userId": "65aa6ecd8d17fa57ca99cd20",
+  "userId": "65ac6cd64c609d4be085d116",
   "title": "Title of new post",
   "text": "Text of new post."
 }
@@ -73,15 +73,15 @@ PATCH http://localhost:3000/api/posts/65ac717e9288c22ad6335cd8
 Content-Type: application/json
 
 {
-  "title": "Updated title"
+  "title": "Updated post title"
 }
 # {
-#   "text": "Updated content."
+#   "text": "Updated post text."
 # }
 
 ###
 # DELETE one Post
-DELETE http://localhost:3000/api/posts/65ac6cd64c609d4be085d11e
+DELETE http://localhost:3000/api/posts/65ac8f967ac8497fcb5c54d0
 
 
 # COMMENTS ##################################################################################

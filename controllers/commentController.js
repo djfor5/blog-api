@@ -30,19 +30,14 @@ const comment_detail = asyncHandler(async (req, res, next) => {
 // Handle Comment create on POST.
 const comment_create_post = [
   // Validate and sanitize fields.
-  body("postId", "Post ID must not be empty.")
+  body("postId", "Post ID is required.")
     .trim()
-    .isLength({ min: 24 })
-    .isLength({ max: 24 })
     .escape(),
-  body("userId", "User ID must not be empty.")
+  body("userId", "User ID is required.")
     .trim()
-    .isLength({ min: 24 })
-    .isLength({ max: 24 })
     .escape(),
-  body("text", "Text must not be empty.")
+  body("text", "Text is required.")
     .trim()
-    .isLength({ min: 3 })
     .escape(),
   // Process request after validation and sanitization.
 
@@ -69,6 +64,7 @@ const comment_create_post = [
       // res.json(comment);
       res.json({
         comment,
+        // TODO - Only return 'true' if comment actually created
         created: true,
       });
     }
@@ -78,7 +74,7 @@ const comment_create_post = [
 // Handle Comment update on PATCH.
 const comment_update_patch = [
   // Validate and sanitize fields.
-  body("text", "Text must not be empty.")
+  body("text", "Text is required.")
     .trim()
     .optional()
     .escape(),
@@ -116,6 +112,7 @@ const comment_update_patch = [
       // res.json(updatedComment);
       res.json({
         comment: updatedComment,
+        // TODO - Only return 'true' if comment actually updated
         updated: true,
       });
     }
@@ -125,15 +122,15 @@ const comment_update_patch = [
 // Handle Comment delete on DELETE.
 const comment_delete_delete = asyncHandler(async (req, res, next) => {
   // Delete comment and return deleted comment.
-  const comment = await Comment.findByIdAndDelete(req.params.id);
+  const deletedComment = await Comment.findByIdAndDelete(req.params.id);
   // const commentObj = comment.toObject()
   // commentObj.deleted = true
 
   // res.json(commentObj);
   // res.json(comment);
   res.json({
-    comment: comment,
-    deleted: true,
+    comment: deletedComment,
+    deleted: deletedComment === null ? false : true
   });
 });
 

@@ -40,6 +40,7 @@ const all_delete_delete = asyncHandler(async (req, res, next) => {
     users,
     posts,
     comments,
+    deleted: true,
   })
 });
 

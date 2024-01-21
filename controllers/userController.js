@@ -40,10 +40,10 @@ const user_detail = asyncHandler(async (req, res, next) => {
 // Handle user create on POST.
 const user_create_post = [
   // Validate and sanitize fields.
-  body("name", "Name must not be empty.")
+  body("name", "Name is required.")
     .trim()
     .escape(),
-  body("email", "Email must not be empty.")
+  body("email", "Email is required.")
     .trim()
     .escape(),
   // Process request after validation and sanitization.
@@ -67,7 +67,12 @@ const user_create_post = [
     } else {
       // Data from API call is valid. Save user.
       await user.save();
-      res.json(user);
+      // res.json(user);
+      res.json({
+        user,
+        // TODO - Only return 'true' if user actually created
+        created: true,
+      });
     }
   }),
 ];
@@ -75,11 +80,11 @@ const user_create_post = [
 // Handle User update on PATCH.
 const user_update_patch = [
   // Validate and sanitize fields.
-  body("name", "Name must not be empty.")
+  body("name")
     .trim()
     .optional()
     .escape(),
-  body("email", "Email must not be empty.")
+  body("email")
     .trim()
     .optional()
     .escape(),
@@ -114,6 +119,7 @@ const user_update_patch = [
       // res.json(updatedUser);
       res.json({
         updatedUser,
+        // TODO - Only return 'true' if user actually updated
         updated: true,
       });
     }
@@ -135,6 +141,7 @@ const user_delete_delete = asyncHandler(async (req, res, next) => {
       user,
       postsId: allPostsByUser.map(post => post._id),
       commentsId: allCommentsByUser.map(comment => comment._id),
+      // TODO - Throw actual error
       error: 'All posts and comments associated with user must be deleted prior to deleting user.'
     });
     return;
@@ -143,6 +150,7 @@ const user_delete_delete = asyncHandler(async (req, res, next) => {
     res.json({
       user,
       postsId: allPostsByUser.map(post => post._id),
+      // TODO - Throw actual error
       error: 'All posts associated with user must be deleted prior to deleting user.'
     });
     return;
@@ -151,18 +159,17 @@ const user_delete_delete = asyncHandler(async (req, res, next) => {
     res.json({
       user,
       commentsId: allCommentsByUser.map(comment => comment._id),
+      // TODO - Throw actual error
       error: 'All comments associated with user must be deleted prior to deleting user.'
     });
     return;
   } else {
     // User has no posts and no comments. Delete object and return deleted user.
+    // TODO - Do I need to escape ID parameter before using as argument in findByIdAndDelete?
     const deletedUser = await User.findByIdAndDelete(req.params.id);
-    // const userObj = user.toObject()
-    // userObj.deleted = true
-    // res.json(userObj);
     res.json({
       user: deletedUser,
-      deleted: true,
+      deleted: deletedUser === null ? false : true,
     });
   }
 });

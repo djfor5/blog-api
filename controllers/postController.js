@@ -1,4 +1,3 @@
-import User from "../models/user.js";
 import Post from "../models/post.js";
 import Comment from "../models/comment.js";
 import { body, validationResult } from "express-validator"
@@ -10,6 +9,7 @@ const post_list = asyncHandler(async (req, res, next) => {
   const allPosts = await Post.find({})
     .sort({ title: 1 })
     .exec();
+  // TODO - Add array of comment IDs to each post object
   res.json(allPosts);
 });
 
@@ -37,18 +37,14 @@ const post_detail = asyncHandler(async (req, res, next) => {
 // Handle Post create on POST.
 const post_create_post = [
   // Validate and sanitize fields.
-  body("userId", "User ID must not be empty.")
+  body("userId", "User ID is required.")
     .trim()
-    .isLength({ min: 24 })
-    .isLength({ max: 24 })
     .escape(),
-  body("title", "Title must not be empty.")
+  body("title", "Title is required.")
     .trim()
-    .isLength({ min: 3 })
     .escape(),
-  body("text", "Text must not be empty.")
+  body("text", "Text is required.")
     .trim()
-    .isLength({ min: 3 })
     .escape(),
   // Process request after validation and sanitization.
 
@@ -75,6 +71,7 @@ const post_create_post = [
       // res.json(post);
       res.json({
         post,
+        // TODO - Only return 'true' if post actually created
         created: true,
       });
     }
@@ -84,11 +81,11 @@ const post_create_post = [
 // Handle Post update on PATCH.
 const post_update_patch = [
   // Validate and sanitize fields.
-  body("title", "Title must not be empty.")
+  body("title", "Title is required.")
     .trim()
     .optional()
     .escape(),
-  body("text", "Text must not be empty.")
+  body("text", "Text is required.")
     .trim()
     .optional()
     .escape(),
@@ -126,6 +123,7 @@ const post_update_patch = [
       // res.json(updatedPost);
       res.json({
         updatedPost,
+        // TODO - Only return 'true' if post actually updated
         updated: true,
       });
     }
@@ -145,6 +143,7 @@ const post_delete_delete = asyncHandler(async (req, res, next) => {
     res.json({
       post,
       commentsId: allCommentsInPost.map(comment => comment._id),
+      // TODO - Throw actual error
       error: 'All comments associated with post must be deleted prior to deleting post.'
     });
     return;
@@ -156,7 +155,7 @@ const post_delete_delete = asyncHandler(async (req, res, next) => {
     // res.json(postObj);
     res.json({
       post: deletedPost,
-      deleted: true,
+      deleted: deletedPost === null ? false : true
     });
   }
 });
