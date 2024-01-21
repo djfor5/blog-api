@@ -1,0 +1,119 @@
+# GENERAL ##################################################################################
+
+###
+# GET stats
+GET http://localhost:3000/api/admin
+
+###
+# DELETE all Users, Posts, and Comments
+DELETE http://localhost:3000/api/admin
+
+
+# USERS ##################################################################################
+
+###
+# GET all Users
+GET http://localhost:3000/api/users
+
+###
+# GET one User
+GET http://localhost:3000/api/users/65ac6cd64c609d4be085d116
+
+###
+# POST one User
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+  "name": "Sally",
+  "email": "test@test.com"
+}
+
+###
+# PATCH one User
+PATCH http://localhost:3000/api/users/65ab5bef94ac0e47955d7481
+Content-Type: application/json
+
+{
+  "name": "Bob"
+}
+# {
+#   "email": "test@test.com"
+# }
+
+###
+# DELETE one User
+DELETE http://localhost:3000/api/users/65ac6cd64c609d4be085d115
+
+
+# POSTS ##################################################################################
+
+###
+# GET all Posts
+GET http://localhost:3000/api/posts
+
+###
+# GET one Post
+GET http://localhost:3000/api/posts/65ac795a383092d54d3a8247
+
+###
+# POST one Post
+POST http://localhost:3000/api/posts
+Content-Type: application/json
+
+{
+  "userId": "65aa6ecd8d17fa57ca99cd20",
+  "title": "Title of new post",
+  "text": "Text of new post."
+}
+
+###
+# PATCH one Post
+PATCH http://localhost:3000/api/posts/65ac717e9288c22ad6335cd8
+Content-Type: application/json
+
+{
+  "title": "Updated title"
+}
+# {
+#   "text": "Updated content."
+# }
+
+###
+# DELETE one Post
+DELETE http://localhost:3000/api/posts/65ac6cd64c609d4be085d11e
+
+
+# COMMENTS ##################################################################################
+
+###
+# GET all Comments
+GET http://localhost:3000/api/comments
+
+###
+# GET one Comment
+GET http://localhost:3000/api/comments/65ac6cd64c609d4be085d12a
+
+###
+# POST one Comment
+POST http://localhost:3000/api/comments
+Content-Type: application/json
+
+{
+  "postId": "65ac795a383092d54d3a8247",
+  "userId": "65aa6ecd8d17fa57ca99cd20",
+  "text": "This is a new comment."
+}
+
+###
+# PATCH one Comment
+PATCH http://localhost:3000/api/comments/65ac6cd64c609d4be085d129
+Content-Type: application/json
+
+{
+  "text": "Updated comment"
+}
+
+###
+# DELETE one Comment
+DELETE http://localhost:3000/api/comments/65ac6cd64c609d4be085d12c
