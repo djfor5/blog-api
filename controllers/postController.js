@@ -120,11 +120,9 @@ const post_update_patch = [
             runValidators: true, // validate against Mongoose schema
           }
         );
-      // res.json(updatedPost);
       res.json({
         updatedPost,
-        // TODO - Only return 'true' if post actually updated
-        updated: true,
+        updated: updatedPost === null ? false : true
       });
     }
   }),
@@ -149,10 +147,8 @@ const post_delete_delete = asyncHandler(async (req, res, next) => {
     return;
   } else {
     // Post has no comments. Delete object and return deleted post.
+    // TODO - Do I need to escape ID parameter before using as argument in findByIdAndDelete?
     const deletedPost = await Post.findByIdAndDelete(req.params.id);
-    // const postObj = post.toObject()
-    // postObj.deleted = true
-    // res.json(postObj);
     res.json({
       post: deletedPost,
       deleted: deletedPost === null ? false : true

@@ -31,7 +31,7 @@ Content-Type: application/json
 
 ###
 # PATCH one User
-PATCH http://localhost:3000/api/users/65ab5bef94ac0e47955d7481
+PATCH http://localhost:3000/api/users/65ac91fe95d708b8039f4085
 Content-Type: application/json
 
 {
@@ -69,7 +69,7 @@ Content-Type: application/json
 
 ###
 # PATCH one Post
-PATCH http://localhost:3000/api/posts/65ac717e9288c22ad6335cd8
+PATCH http://localhost:3000/api/posts/65ac92bbe27fe8446f362fea
 Content-Type: application/json
 
 {
@@ -107,7 +107,7 @@ Content-Type: application/json
 
 ###
 # PATCH one Comment
-PATCH http://localhost:3000/api/comments/65ac6cd64c609d4be085d129
+PATCH http://localhost:3000/api/comments/65ac931cc8a0d8b10e261f83
 Content-Type: application/json
 
 {

@@ -109,11 +109,9 @@ const comment_update_patch = [
             runValidators: true, // validate against Mongoose schema
           }
         );
-      // res.json(updatedComment);
       res.json({
         comment: updatedComment,
-        // TODO - Only return 'true' if comment actually updated
-        updated: true,
+        updated: updatedComment === null ? false : true
       });
     }
   }),
@@ -122,12 +120,8 @@ const comment_update_patch = [
 // Handle Comment delete on DELETE.
 const comment_delete_delete = asyncHandler(async (req, res, next) => {
   // Delete comment and return deleted comment.
+  // TODO - Do I need to escape ID parameter before using as argument in findByIdAndDelete?
   const deletedComment = await Comment.findByIdAndDelete(req.params.id);
-  // const commentObj = comment.toObject()
-  // commentObj.deleted = true
-
-  // res.json(commentObj);
-  // res.json(comment);
   res.json({
     comment: deletedComment,
     deleted: deletedComment === null ? false : true

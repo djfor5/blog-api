@@ -119,8 +119,7 @@ const user_update_patch = [
       // res.json(updatedUser);
       res.json({
         updatedUser,
-        // TODO - Only return 'true' if user actually updated
-        updated: true,
+        updated: updatedUser === null ? false : true,
       });
     }
   }),
