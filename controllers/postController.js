@@ -10,8 +10,19 @@ const post_list = asyncHandler(async (req, res, next) => {
   const allPosts = await Post.find({})
     .sort({ title: 1 })
     .exec();
-  // TODO - Add array of comment IDs to each post object
-  res.json(allPosts);
+
+  const allPostsUpdated = []
+  for (const document of allPosts) {
+    const obj = document.toObject()
+    
+    const commentDocumentsArr = await Comment.find({postId: document._id}, "_id")
+    const commentsIdArr = commentDocumentsArr.map(document => document._id)
+    obj.commentsId = commentsIdArr
+
+    allPostsUpdated.push(obj)
+  }
+  
+  res.json(allPostsUpdated);
 });
 
 // Get details for one Post.
